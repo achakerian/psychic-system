@@ -4,7 +4,7 @@
 
 ## Setup up environment and Install Dependencies:
 
-`npm install typescript ts-node @types/node openai amqplib uuid dotenv axios zod`
+`npm install typescript ts-node @types/node openai amqplib uuid dotenv zod`
 `npm install @types/amqplib --save-dev`
 `docker pull rabbitmq:3-management`
 
