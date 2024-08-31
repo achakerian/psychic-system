@@ -15,7 +15,7 @@ async function receiveProcessRespond() {
     channel.consume(receiveQueue, async (msg: amqp.ConsumeMessage | null) => {
       if (msg) {
         const response = await promptUUID(
-          "can you write ten "
+          "can you write ten ",
           msg.content[0].toString(),
           msg.content[1].toString()
         );
@@ -40,7 +40,7 @@ if (debug) {
     try {
       const msg = "can you ask me a question";
       
-      console.log("Call OpenAI API", promptUUID(msg, "12223344"));
+      console.log("Call OpenAI API", promptUUID("",msg, "12223344"));
   } catch (error) {
     console.error("failed to get response", error);
   }

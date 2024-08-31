@@ -1,41 +1,24 @@
-import PDFParser from "pdf2json";
+import fs from "fs";
+import pdfParse from "pdf-parse";
 
-// Function to read a PDF file and write its content to a text file
-function pdfToText(pdfPath: string): void {
-  const pdfParser = new PDFParser();
+// read PDF from file and return txt
+async function pdfToText(pdfPath: string): Promise<string> {
+  try {
+    // Read the PDF file as a buffer
+    const dataBuffer = fs.readFileSync(pdfPath);
 
-  // Load the PDF file
-  pdfParser.loadPDF(pdfPath);
-
-  // Event listener for when PDF parsing is completed
-  pdfParser.on("pdfParser_dataReady", (pdfData: any) => {
-    let extractedText = "";
-
-    // Loop through each page
-    pdfData.formImage.Pages.forEach((page: any) => {
-      // Loop through each text object in the page
-      page.Texts.forEach((text: any) => {
-        // Concatenate decoded text to the extracted text
-        extractedText += decodeURIComponent(text.R[0].T) + " ";
-      });
-    });
-
-    // Write the extracted text to a new text file
-    return extractedText;
-  });
-
-  // Error handling
-  pdfParser.on("pdfParser_dataError", (error: any) => {
-    console.error(
-      "An error occurred while parsing the PDF:",
-      error.parserError
-    );
-  });
+    // Parse the PDF to extract text
+    const pdfData = await pdfParse(dataBuffer);
+    return pdfData.text;
+  } catch (error) {
+    console.error("An error occurred:", error);
+    return "";
+  }
 }
 
-const debug = true;
+const debug = false;
 if (debug) {
-  const inputPdfPath = "./PDF/example.pdf";
+  // Example usage
+  const inputPdfPath = "./PDFs/example.pdf"; // Replace with your PDF file path
   pdfToText(inputPdfPath);
 }
-export { pdfToText };

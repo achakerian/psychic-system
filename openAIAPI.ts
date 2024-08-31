@@ -53,8 +53,8 @@ if (debug) {
   (async () => {
     try {
       const response = await promptUUID(
-        "please provide ten questions to assess my understanding of the text submission",
-        "1324"
+        // student submission , prompt used, UUID
+       "Medicine", "please provide three questions to assess my understanding of the text submission", "1324"
       );
       if (response) console.log("The response is: ", response);
     } catch (error) {
