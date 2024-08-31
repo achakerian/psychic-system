@@ -11,7 +11,9 @@ async function receiveProcessRespond() {
     await channel.assertQueue(receiveQueue, { durable: false });
     await channel.assertQueue(sendQueue, { durable: false });
 
-    console.log(` [*] Waiting for messages in '${receiveQueue}'. To exit press CTRL+C`);
+    console.log(
+      ` [*] Waiting for messages in '${receiveQueue}'. To exit press CTRL+C`
+    );
     channel.consume(receiveQueue, async (msg: amqp.ConsumeMessage | null) => {
       if (msg) {
         const response = await promptUUID(
@@ -39,12 +41,12 @@ if (debug) {
   (async () => {
     try {
       const msg = "can you ask me a question";
-      
-      console.log("Call OpenAI API", promptUUID("",msg, "12223344"));
-  } catch (error) {
-    console.error("failed to get response", error);
-  }
+
+      console.log("Call OpenAI API", promptUUID("", msg, "12223344"));
+    } catch (error) {
+      console.error("failed to get response", error);
+    }
   })();
-}else{
+} else {
   receiveProcessRespond();
 }
