@@ -6,6 +6,8 @@
 
 `npm install typescript ts-node @types/node openai amqplib uuid dotenv zod pdf-parse`
 `npm install @types/amqplib --save-dev`
+`npm install --save-dev @types/node`
+
 `docker pull rabbitmq:3-management`
 `npm i --save-dev @types/pdf-parse`
 

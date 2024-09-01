@@ -2,6 +2,9 @@ import { promptUUID } from "./openAIAPI";
 import { Message } from "./rabbitMQ";
 import { pdfToText } from "./extractPDF";
 const m = new Message("AItoBE", "BEtoAI");
+async () => {
+  await m.init();
+};
 
 async function receiveProcessRespond() {
   const msg = await m.receive();
@@ -21,10 +24,12 @@ async function receiveProcessRespond() {
   m.send(response);
 }
 
-let debug = 2;
-if (debug == 1) { //"testOpenAIAPI"
+// ---------------------- checks ------------------------------//
+let debug = 0;
+if (debug == 1) {
+  //"testOpenAIAPI"
   // sends prompt and UUID to openAIAPI.ts
-  console.log("aiRabbit debug active: check openAI API");
+  console.log("aiRabbit debug active: check openAI response");
   (async () => {
     try {
       const p = "ask me questions to test my knowledge of the following input";
@@ -39,7 +44,8 @@ The efficiency of photosynthesis is crucial for the growth and survival of plant
       console.error("failed to get response", error);
     }
   })();
-} else if (debug == 2) {//"testExtractPDF"
+} else if (debug == 2) {
+  //"testExtractPDF"
   // sends prompt and UUID to openAIAPI.ts
   console.log("aiRabbit debug active: check ExtractPDF");
   (async () => {
@@ -53,6 +59,6 @@ The efficiency of photosynthesis is crucial for the growth and survival of plant
       console.error("failed to get response", error);
     }
   })();
-} else {
-  console.log("no debugger");
-}
+} 
+  receiveProcessRespond();
+

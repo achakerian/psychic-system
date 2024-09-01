@@ -1,43 +1,55 @@
-import * as amqp from "amqplib";
+import * as readline from "readline"; //debugging only
+import { Message } from "./rabbitMQ";
 
-//debugging: mock Back End
-const debug = true;
-if (debug) {
-  // sends prompt and UUID to openAIAPI.ts
-  console.log("beRabbit debug active");
-  console.log(" ");
-  
-  (async () => {
-    try {
-      //create a connection
-      const connection = await amqp.connect("amqp://localhost");
-      const channel = await connection.createChannel();
-      const sendQueue = "BEtoAI";
-      const receiveQueue = "AItoBE";
-      await channel.assertQueue(receiveQueue, { durable: false }); //this is the BE mock up so we send it to the receive que
-      await channel.assertQueue(sendQueue, { durable: false }); //this is the BE mock up so we send it to the receive que
+let debug = 2;
 
-      //payload
-      const UUID = "12234";
-      const msg = {
-        content: "ask me about my day",
-        id: UUID,
-      };
+const be = new Message("BEtoAI", "AItoBE");
+const ai = new Message("AItoBE", "BEtoAI");
 
-      // Convert the object to a JSON string
-      const messageBuffer = Buffer.from(JSON.stringify(msg));
+(async () => {
+  await be.init();
+  await ai.init();
 
-      // Send the message buffer to the queue
-      channel.sendToQueue(sendQueue, messageBuffer);
-      // Receive reply from AI aiRabbit
-      channel.consume(receiveQueue, async (msg: amqp.ConsumeMessage | null) => {
-        if (msg) {
-          console.log(` [x] Received '${msg.content.toString()}'`);
-          channel.ack(msg);
-        }
-      });
-    } catch (error) {
-      console.error("failed to get response", error);
-    }
-  })();
-}
+  if (debug == 1) { 
+    console.log("rabbitMQ debug active: check internal messaging system");
+    await ai.send(["Hellooo", "ai1234"]);
+    const rec = await be.receive(); // Await the promise to get the actual message
+    console.log("debug received: ", rec);
+
+  }
+  if (debug == 2) {
+    console.log("rabbitMQ debug active: check messaging system from BE to AI + response");
+    const s: string = `
+Nuclear physics is the branch of physics that studies atomic nuclei and their interactions. This field explores the fundamental forces that hold the nucleus together, including the strong nuclear force, which is responsible for binding protons and neutrons within the nucleus. Research in nuclear physics has led to significant advancements in our understanding of matter, energy, and the universe's origins.
+One of the key areas of nuclear physics is nuclear reactions, such as fission and fusion. Fission, the splitting of a heavy nucleus into lighter nuclei, is the process behind nuclear power and atomic bombs. Fusion, the combining of light nuclei to form a heavier nucleus, powers the sun and holds potential for future energy sources on Earth. These reactions release vast amounts of energy, making them crucial for both practical applications and theoretical research.
+Nuclear physics also plays a vital role in medical applications, such as in nuclear medicine, where radioactive isotopes are used for imaging and treatment. Additionally, it contributes to our understanding of stellar processes and the formation of elements in the universe. Through experiments and technologies like particle accelerators, nuclear physics continues to deepen our knowledge of the fundamental components of matter and the forces that govern their interactions.`;
+    await be.send([s, "be9834"]);
+    await be.receive();  
+  }
+  if (debug == 3) {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    // CLI input function
+    const askQuestion = (query: string): Promise<string> => {
+      return new Promise((resolve) => rl.question(query, resolve));
+    };
+
+    (async () => {
+      try {
+        const question = await askQuestion(`Hello, what would you like to say to BE?`);
+        await ai.send([question]);
+        await be.receive();
+
+      } catch (error) {
+        console.error("An error occurred:", error);
+      } finally {
+        // Close the readline interface
+        rl.close();
+      }
+    })();
+  }
+
+})();

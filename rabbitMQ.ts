@@ -1,5 +1,4 @@
 import * as amqp from "amqplib";
-
 export class Message {
   connection: amqp.Connection | null = null;
   channel: amqp.Channel | null = null;
@@ -9,15 +8,14 @@ export class Message {
   constructor(send: string, receive: string) {
     this.receiveQueue = receive;
     this.sendQueue = send;
-    this.init();
   }
   async init() {
     try {
-      const connection = await amqp.connect("amqp://localhost");
-      const channel = await connection.createChannel();
+      this.connection = await amqp.connect("amqp://localhost");
+      this.channel = await this.connection.createChannel();
 
-      await channel.assertQueue(this.receiveQueue, { durable: false });
-      await channel.assertQueue(this.sendQueue, { durable: false });
+      await this.channel.assertQueue(this.receiveQueue, { durable: false });
+      await this.channel.assertQueue(this.sendQueue, { durable: false });
     } catch (error) {
       console.error("Failed to initialize connection or channel:", error);
       // prevent resource leak on error
@@ -47,8 +45,11 @@ export class Message {
   }
 
   async send(msg: string[]) {
-    const messageBuffer = Buffer.from(JSON.stringify(msg));
-    this.channel?.sendToQueue(this.sendQueue, messageBuffer);
+    try {
+      const messageBuffer = Buffer.from(JSON.stringify(msg));
+      console.log(" [x] Sent :", msg);
+      this.channel?.sendToQueue(this.sendQueue, messageBuffer);
+    } catch (error) {}
   }
 
   async close() {
