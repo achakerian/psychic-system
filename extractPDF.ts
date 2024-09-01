@@ -22,3 +22,5 @@ if (debug) {
   const inputPdfPath = "./PDFs/example.pdf"; // Replace with your PDF file path
   pdfToText(inputPdfPath);
 }
+
+export { pdfToText }

@@ -29,11 +29,13 @@ const client = new OpenAI({
 // function to prompt OpenAI and parse the response using Zod
 async function promptUUID(prompt: string, submission: string, uuid: string): Promise<[string, string]> {
   try {
+    console.log("promptUUID called");
     const response = await client.chat.completions.create({
       model: "gpt-4o-2024-08-06", // Use the appropriate model
-      messages: [{ role: "user", content: prompt }, { role: "user", content: submission }],
+      messages: [{ role: "user", content: prompt + "\n\n" + submission }],
       response_format: zodResponseFormat(QuestionResponse, "QuestionResponse"),
     });
+    console.log("promptUUID check");
 
     const responseText = response.choices[0].message.content;
     if (responseText != null) return [responseText, uuid];
@@ -54,7 +56,7 @@ if (debug) {
     try {
       const response = await promptUUID(
         // student submission , prompt used, UUID
-       "Medicine", "please provide three questions to assess my understanding of the text submission", "1324"
+       "photosynthesis", "please provide three questions to assess my understanding of the text submission", "1324"
       );
       if (response) console.log("The response is: ", response);
     } catch (error) {
